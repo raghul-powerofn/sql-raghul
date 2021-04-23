@@ -1,0 +1,57 @@
+Question 1:
+
+create table AGENT( 
+AGENT_CODE varchar(4)PRIMARY KEY, 
+AGENT_NAME varchar(100) NOT NULL, 
+COUNTRY varchar(100) NOT NULL,
+PHONE_NO INT(10) NOT NULL,
+STATUS TINYINT NOT NULL CHECK (STATUS IN (0,1)));
+
+create table CUSTOMER( 
+CUST_CODE varchar(4) NOT NULL, 
+CUST_NAME varchar(100) NOT NULL, 
+CUST_CITY varchar(100) NOT NULL, 
+PHONE_NO INT(10) NOT NULL, 
+AGENT_CODE varchar(4) NOT NULL, 
+PRIMARY KEY (CUST_CODE), 
+FOREIGN KEY (AGENT_CODE) REFERENCES AGENT (AGENT_CODE));
+
+create table ORDERS( 
+ORDER_NUM varchar(4) PRIMARY KEY,  
+CUST_CODE varchar(4) NOT NULL, 
+AGENT_CODE varchar(4) not null, 
+AMOUNT INT not null, 
+ORDER_DATE DATE not null, 
+FOREIGN KEY (CUST_CODE) REFERENCES CUSTOMER (CUST_CODE), 
+FOREIGN KEY (AGENT_CODE) REFERENCES AGENT (AGENT_CODE));
+
+Question 2:
+
+alter table AGENT add column Commission decimal(3,2);
+update AGENT set Commission=0.2 where AGENT_CODE='A001';
+update AGENT set Commission=0.96 where AGENT_CODE='A002';
+update AGENT set Commission=0.23 where AGENT_CODE='A003';
+update AGENT set Commission=0.12 where AGENT_CODE='A004';
+update AGENT set Commission=0.76 where AGENT_CODE='A005';
+
+Question 3:
+
+alter table AGENT drop column PHONE_NO;
+
+Question 4:
+
+alter table AGENT change column Commission Commission_Percentage decimal(3,2);
+
+Question 5:
+
+create table AGENT_DETAILS as select * from AGENT;
+
+Question 6:
+
+truncate table ORDERS;
+
+Question 7:
+
+alter table ORDERS alter AMOUNT set default 10000;
+
+
