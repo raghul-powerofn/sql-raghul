@@ -1,0 +1,25 @@
+create table USECASE_3(TIME timestamp not null,DEVICE varchar(2) not null,CONSUMPTION decimal(4,3) not null);
+
+Qn 1:
+
+load data local infile '/home/raghul/linux-playground/use3.csv' into table USECASE_3 fields terminated by ','  ignore 1 rows;
+
+Qn 2:
+
+select TIME , DEVICE ,COUNT(TIME) from USECASE_3 group by DEVICE,TIME having count(TIME)>1;
+
+Qn 3:
+
+with MYTABLE as ( select TIME as minn,row_number() over (partition by HOUR(TIME) order by TIME)-MINUTE(TIME) as rowdif from USECASE_3 where DEVICE='D1') select timestampadd(MINUTE,rowdif-1,minn) from MYTABLE where rowdif!=1;
+
+with MYTABLE as ( select TIME as minn,row_number() over (partition by HOUR(TIME) order by TIME)-MINUTE(TIME) as rowdif from USECASE_3 where DEVICE='D2') select timestampadd(MINUTE,rowdif-1,minn) from MYTABLE where rowdif!=1;
+
+with MYTABLE as ( select TIME as minn,row_number() over (partition by HOUR(TIME) order by TIME)-MINUTE(TIME) as rowdif from USECASE_3 where DEVICE='D3') select timestampadd(MINUTE,rowdif-1,minn) from MYTABLE where rowdif!=1;
+
+Qn 4:
+
+select DEVICE,HOUR(TIME),SUM(CONSUMPTION) from USECASE_3 group by DEVICE,HOUR(TIME);
+
+Qn 5:
+
+select DEVICE,CONSUMPTION from USECASE_3 where CONSUMPTION=(select max(CONSUMPTION) from USECASE_3) group by DEVICE;
