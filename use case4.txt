@@ -1,0 +1,29 @@
+create table DEPARTMENT(ID varchar(4) not null primary key,NAME varchar(15) not null);
+
+create table ROLES(ID varchar(4) not null primary key,NAME varchar(50) not null);
+
+create table EMPLOYEE(ID varchar(4) not null primary key,NAME varchar(50) not null,DEPARTMENT varchar(4) not null, ACTIVE enum('1','0') not null, GENDER enum('M','F') not null,ROLE_ID varchar(4) not null,foreign key (ROLE_ID) references ROLES(ID),foreign key (DEPARTMENT) references DEPARTMENT(ID));
+
+create table EMP_ACTIVE_DATE(ID varchar(4) not null,ACTIVE_FROM date not null,RESIGNED_ON date,foreign key (ID) references EMPLOYEE(ID));
+
+create table REPORTING(ID varchar(4) not null,L2 varchar(4),L1 varchar(4),foreign key (ID) references EMPLOYEE(ID));
+
+Qn 1:
+
+select DEPARTMENT.ID,DEPARTMENT.NAME as DEPARTMENT,COUNT(EMPLOYEE.DEPARTMENT) as STRENGTH from DEPARTMENT join EMPLOYEE on DEPARTMENT.ID=EMPLOYEE.DEPARTMENT group by EMPLOYEE.DEPARTMENT;
+
+Qn 2:
+
+SELECT EMPLOYEE.ID AS ID,EMPLOYEE.NAME AS EMPLOYEE,L2,L1 FROM EMPLOYEE JOIN (SELECT EMPLOYEE.ID AS ID,IF(L2 IS NULL,'-',(SELECT NAME FROM EMPLOYEE WHERE ID=L2)) AS L2,IF (L1 IS NULL,'-',(SELECT NAME FROM EMPLOYEE WHERE ID=L1)) AS L1 FROM EMPLOYEE JOIN REPORTING ON EMPLOYEE.ID = REPORTING.ID) REP ON EMPLOYEE.ID = REP.ID where EMPLOYEE.ACTIVE=1 ORDER BY EMPLOYEE.ID;
+
+Qn 3:
+
+with mytable as (select ID,concat(years,months,days) as TERM from (select ID,dayys,concat(extract(year from from_days(dayys)), ' years ') as years,concat(extract(month from from_days(dayys))-1, ' months ') as months, concat(extract(day from from_days(dayys))-1, ' days') as days from(select ID, DATEDIFF(IF(RESIGNED_ON!=null,RESIGNED_ON,curdate()),ACTIVE_FROM) as dayys from EMP_ACTIVE_DATE) as no_of_days) as term) select E.ID,E.NAME as EMPLOYEE,D.NAME as DEPARTMENT,R.NAME as ROLE,(case when ACTIVE='1' then 'ACTIVE' else "RESIGNED" end) as STATUS,(case when GENDER='M' then 'MALE' else 'FEMALE' end) as GENDER,mytable.TERM from mytable join EMPLOYEE E on E.ID=mytable.ID join DEPARTMENT D on E.DEPARTMENT=D.ID join ROLES R on E.ROLE_ID=R.ID;
+
+Qn 4:
+
+select EMPLOYEE.ID,EMPLOYEE.NAME,EMPLOYEE.DEPARTMENT,DATEDIFF(curdate(),EMP_ACTIVE_DATE.ACTIVE_FROM) as DAYS from EMPLOYEE join EMP_ACTIVE_DATE on EMPLOYEE.iD=EMP_ACTIVE_DATE.ID where DATEDIFF(curdate(),EMP_ACTIVE_DATE.ACTIVE_FROM)>1500;
+
+Qn 5:
+
+select DEPARTMENT.NAME as DEPARTMENT,(COUNT(if(GENDER='F',1,null))*100/count(if(GENDER='F',1,1))) as PERCENT from DEPARTMENT join EMPLOYEE on DEPARTMENT.ID=EMPLOYEE.DEPARTMENT group by DEPARTMENT.NAME;
