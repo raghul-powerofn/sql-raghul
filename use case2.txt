@@ -1,0 +1,46 @@
+create table STUDENT( ID varchar(4) PRIMARY KEY, NAME varchar(100) not null, DEPARTMENT varchar(15) not null, CGPA decimal(2,1) not null);
+
+create table COMPANY( ID varchar(4) PRIMARY KEY, NAME varchar(100) not null, LOCATION varchar(100) not null, INTERVIEW_DATE date not null);
+
+create table PLACEMENTS( S_ID varchar(4) not null, C_ID varchar(4) not null, PACKAGE int not null, FOREIGN KEY (S_ID) REFERENCES STUDENT (ID), FOREIGN KEY (C_ID) REFERENCES COMPANY (ID));\
+
+insert into STUDENT values ('S001','Arun','CS',8);
+insert into STUDENT values ('S002','Gita','CS',7.5);
+
+insert into COMPANY values ('C001','MICROSOFT','BANGALORE','2020-08-01');
+insert into COMPANY values ('C002','AMAZON','CHENNAI','2020-09-10');
+
+insert into PLACEMENTS values ('S001','C001',2000000);
+insert into PLACEMENTS values ('S002','C001',2000000);
+
+Question 1:
+
+ans - select S.NAME as STUDENT,C.NAME as COMPANY,PACKAGE from STUDENT S JOIN COMPANY C JOIN PLACEMENTS P WHERE S.ID=P.S_ID AND C.ID = P.C_ID AND PACKAGE = (SELECT MAX(PACKAGE) from PLACEMENTS);
+
+Question 2:
+
+ans  - select S.NAME as STUDENT,S.DEPARTMENT,(case when S.ID in (select S_ID from PLACEMENTS) then 'YES' else 'NO' end) as PLACED,C.NAME as COMPANY,P.PACKAGE from STUDENT S left join PLACEMENTS P on S.ID=P.S_ID left join COMPANY C on P.C_ID=C.ID where S.DEPARTMENT='ECE';
+
+Question 3:
+
+ans - select C.NAME as COMPANY,(case when C.ID in (select C_ID from PLACEMENTS) then count(C_ID) else '0' end) as NO_OF_STUDENTS from COMPANY C left join PLACEMENTS P on C.ID=P.C_ID group by C.NAME;
+
+Question 4:
+
+ans - select monthname(INTERVIEW_DATE) as Month ,NAME as Company from COMPANY where monthname(INTERVIEW_DATE)='September';
+
+Question 5:
+
+ans - select NAME as COMPANY,INTERVIEW_DATE as DATE from COMPANY where INTERVIEW_DATE <= CURRENT_DATE();
+
+Question 6:
+
+ans - SELECT S.NAME as STUDENT,C.NAME as COMPANY FROM STUDENT S JOIN PLACEMENTS P ON S.ID=P.S_ID JOIN COMPANY C ON P.C_ID=C.ID WHERE S.ID IN ( SELECT S_ID FROM PLACEMENTS GROUP BY S_ID HAVING COUNT(*)>1);
+
+Question 7:
+
+ans - select S.NAME,S.DEPARTMENT, S.CGPA from STUDENT S left join PLACEMENTS P on S.ID=P.S_ID where S.CGPA >7 and S.ID not in ( select S_ID from PLACEMENTS);
+
+Question 8:
+
+ans - select NAME,LOCATION from COMPANY where LOCATION like 'B%';
