@@ -1,0 +1,47 @@
+create table BOOK(ID int primary key auto_increment, NAME varchar(50) not null,ISBN int(7) not null,EDITION int(1) not null);
+
+create table AUTHOR(ID int primary key auto_increment, FIRST_NAME varchar(20) not null, LAST_NAME varchar(20) not null);
+
+create table BOOK_DETAILS(BOOK_ID int,AUTHOR_ID int,foreign key (BOOK_ID) references BOOK(ID),foreign key (AUTHOR_ID) references AUTHOR(ID));
+
+create table LIBRARIANS(ID INT(5) PRIMARY KEY, NAME VARCHAR(30) not null);
+
+create table CUSTOMER(ID int(3) primary key not null,NAME varchar(15) not null,ADDRESS varchar(50) not null);
+
+create table BOOK_REQUEST(DUE_DATE date not null,IS_ACTIVE enum('1','0') not null,CUSTOMER_ID int(3) not null,BOOK_ID int not null, LIBRARIAN_ID int(5) not null,foreign key (CUSTOMER_ID) references CUSTOMER(ID),foreign key (BOOK_ID) references BOOK(ID), foreign key (LIBRARIAN_ID) references LIBRARIANS(ID));
+
+Qn 1:
+
+select B.NAME as BOOK_NAME,B.ISBN,B.EDITION,A.FIRST_NAME,A.LAST_NAME from BOOK B join BOOK_DETAILS on B.ID=BOOK_DETAILS.BOOK_ID join AUTHOR A on BOOK_DETAILS.AUTHOR_ID = A.ID ;
+
+Qn 2:
+
+select B.NAME as BOOK_NAME,A.ID as AUTHOR_ID,A.FIRST_NAME as AUTHOR_NAME from BOOK B join BOOK_DETAILS on B.ID=BOOK_DETAILS.BOOK_ID join AUTHOR A on BOOK_DETAILS.AUTHOR_ID = A.ID where B.NAME like '%programming%' order by B.NAME;
+
+Qn 3:
+
+select B.NAME as BOOK_NAME,BOOK_REQUEST.DUE_DATE as DUE_DATE,CUSTOMER.NAME as CUSTOMER_NAME from BOOK B join BOOK_REQUEST on B.ID=BOOK_REQUEST.BOOK_ID join CUSTOMER on BOOK_REQUEST.CUSTOMER_ID=CUSTOMER.ID where BOOK_REQUEST.IS_ACTIVE='0';
+
+Qn 4:
+
+select DISTINCT NAME,ISBN,EDITION from BOOK;
+
+Qn 5:
+
+select B.NAME as BOOK_NAME,C.NAME as CUSTOMER_NAME,L.NAME as LIBRARIAN_NAME from BOOK B join BOOK_REQUEST R on B.ID=R.BOOK_ID join CUSTOMER C on R.CUSTOMER_ID=C.ID join LIBRARIANS L on R.LIBRARIAN_ID=L.ID limit 3;
+
+Qn 6:
+
+SELECT CUST.ID, CUST.NAME, SUM(IF(CUST.ID IN (SELECT BOOK_REQUEST.CUSTOMER_ID), (IF(BOOK_REQUEST.IS_ACTIVE='0', DATEDIFF('2021-01-20',BOOK_REQUEST.DUE_DATE),0)),0)) AS FINE_AMOUNT FROM CUSTOMER as CUST LEFT JOIN BOOK_REQUEST ON CUST.ID=BOOK_REQUEST.CUSTOMER_ID GROUP BY CUST.ID;
+
+Qn 7:
+
+select L.NAME as LIBRARIAN_NAME, COUNT(BOOK_REQUEST.LIBRARIAN_ID) as NO_OF_BOOKS from LIBRARIANS L join BOOK_REQUEST on L.ID=BOOK_REQUEST.LIBRARIAN_ID group by L.NAME;
+
+Qn 8:
+
+select C.NAME as CUSTOMER_NAME,B.NAME as BOOK_NAME,B.EDITION as BOOK_EDITION,A.FIRST_NAME as AUTHOR_FIRST_NAME from BOOK B join BOOK_REQUEST R on B.ID=R.BOOK_ID join CUSTOMER C on R.CUSTOMER_ID=C.ID join BOOK_DETAILS D on B.ID=D.BOOK_ID join AUTHOR A on D.AUTHOR_ID=A.ID group by CUSTOMER_NAME,BOOK_NAME having COUNT(BOOK_NAME)>1;
+
+Qn 9:
+
+select * from CUSTOMER C where C.ID not in (select CUSTOMER_ID from BOOK_REQUEST) order by C.ID desc;
